@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace J.SharePoint.Lists.QueryExtensions
 {
-    public static class Extension
+    public static class Extensions
     {
         public static bool QueryEq(this DateTime dateTime, DateTime target, bool includeTimeValue)
         {

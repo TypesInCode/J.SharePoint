@@ -73,7 +73,7 @@
     <Compile Include="Lists\Attributes\SPFieldTextMetadata.cs" />
     <Compile Include="Lists\Attributes\SPListMetadata.cs" />
     <Compile Include="Lists\Attributes\TaxonomyFieldMetadata.cs" />
-    <Compile Include="Lists\QueryExtensions\Extension.cs" />
+    <Compile Include="Lists\QueryExtensions\Extensions.cs" />
     <Compile Include="Lists\SPTypedList.cs" />
     <Compile Include="Lists\SPTypedListItem.cs" />
     <Compile Include="Lists\SPTypedListItemCollection.cs" />
