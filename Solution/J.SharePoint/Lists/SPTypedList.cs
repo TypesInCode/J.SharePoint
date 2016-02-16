@@ -23,6 +23,9 @@ namespace J.SharePoint.Lists
         public SPList List
         { get { return _list; } }
 
+        public SPFolder RootFolder
+        { get { return List.RootFolder; } }
+
         public void LoadList(SPWeb web, bool createList = false)
         {
             _list = web.GetList(SPListMetadata.Get(this.GetType()), createList);
@@ -82,9 +85,14 @@ namespace J.SharePoint.Lists
             return new SPTypedListItemCollection<T>(List, _throwFieldErrors);
         }
 
+        public T GetItemById(int id)
+        {
+            return SPTypedListItem.CreateTypedItem<T>(_list.GetItemById(id), _throwFieldErrors);
+        }
+
         public T GetItemByUniqueId(Guid id)
         {
-            return SPTypedListItem.CreateTypedItem<T>(_list.GetItemByUniqueId(id));
+            return SPTypedListItem.CreateTypedItem<T>(_list.GetItemByUniqueId(id), _throwFieldErrors);
         }
 
         public void EnsureList()
