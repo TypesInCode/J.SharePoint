@@ -26,7 +26,7 @@ namespace J.SharePoint
             return listMetadata.GetList(web, createList);
         }
 
-        public static void EnsureContentType<T>(this SPWeb web, SPTypedListItem types) where T : SPTypedListItem, new()
+        public static void EnsureContentType<T>(this SPWeb web) where T : SPTypedListItem, new()
         {
             web.ContentTypes.EnsureContentType(SPContentTypeMetadata.Get(typeof(T)), web);
             web.Fields.EnsureFields(SPFieldMetadata.GetMetadata(typeof(T)));
