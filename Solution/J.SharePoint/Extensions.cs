@@ -26,6 +26,13 @@ namespace J.SharePoint
             return listMetadata.GetList(web, createList);
         }
 
+        public static void EnsureContentType<T>(this SPWeb web, SPTypedListItem types) where T : SPTypedListItem, new()
+        {
+            web.ContentTypes.EnsureContentType(SPContentTypeMetadata.Get(typeof(T)), web);
+            web.Fields.EnsureFields(SPFieldMetadata.GetMetadata(typeof(T)));
+            web.ContentTypes.EnsureFieldLinks(SPFieldMetadata.GetMetadata(typeof(T)), web.Fields);
+        }
+
         public static T GetList<T>(this SPWeb web, bool createList = false) where T : SPTypedList, new()
         {
             T typedList = new T();
@@ -59,14 +66,11 @@ namespace J.SharePoint
             }
         }
 
-        public static void EnsureContentTypes(this SPContentTypeCollection contentTypeCollection, IEnumerable<SPContentTypeMetadata> contentTypeMetadataCollection, SPWeb parentWeb = null)
+        public static void EnsureContentType(this SPContentTypeCollection contentTypeCollection, SPContentTypeMetadata contentTypeMetadata, SPWeb parentWeb = null)
         {
-            foreach(SPContentTypeMetadata ctMd in contentTypeMetadataCollection)
+            if (contentTypeCollection.GetContentType(contentTypeMetadata) == null)
             {
-                if (contentTypeCollection.GetContentType(ctMd) == null)
-                {
-                    contentTypeCollection.Add(ctMd, parentWeb);
-                }
+                contentTypeCollection.Add(contentTypeMetadata, parentWeb);
             }
         }
 

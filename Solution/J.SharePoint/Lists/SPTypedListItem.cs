@@ -34,25 +34,25 @@ namespace J.SharePoint.Lists
         }
 
         public int ID
-        { get; private set; }
+        { get { return _item.ID; } }
 
         [SPFieldTextMetadata(InternalName = TitleInternal)]
         public string Title
         { get; set; }
 
-        [SPFieldDateTimeMetadata(InternalName = CreatedInternal)]
+        [SPFieldDateTimeMetadata(InternalName = CreatedInternal, ReadOnly=true)]
         public DateTime Created
         { get; set; }
 
-        [SPFieldDateTimeMetadata(InternalName = ModifiedInternal)]
+        [SPFieldDateTimeMetadata(InternalName = ModifiedInternal, ReadOnly=true)]
         public DateTime Modified
         { get; set; }
 
-        [SPFieldUserMetadata(InternalName = AuthorInternal)]
+        [SPFieldUserMetadata(InternalName = AuthorInternal, ReadOnly=true)]
         public string CreatedBy
         { get; set; }
 
-        [SPFieldUserMetadata(InternalName = EditorInternal)]
+        [SPFieldUserMetadata(InternalName = EditorInternal, ReadOnly=true)]
         public string ModifiedBy
         { get; set; }
 
@@ -93,7 +93,6 @@ namespace J.SharePoint.Lists
 
         private void ReadFromListItem()
         {
-            ID = _item.ID;
             foreach(PropertyInfo pInfo in SPFieldMetadata.GetProperties(this.GetType()))
             {
                 try
@@ -122,7 +121,11 @@ namespace J.SharePoint.Lists
             foreach(PropertyInfo pInfo in SPFieldMetadata.GetProperties(this.GetType()))
             {
                 SPFieldMetadata metadata = SPFieldMetadata.Get(pInfo);
-                try { metadata.SetFieldValue(_item, pInfo.GetGetMethod(true).Invoke(this, null)); }
+                try 
+                { 
+                    if( !metadata.ReadOnly )
+                        metadata.SetFieldValue(_item, pInfo.GetGetMethod(true).Invoke(this, null)); 
+                }
                 catch(ArgumentException e)
                 {
                     if (_throwFieldErrors)

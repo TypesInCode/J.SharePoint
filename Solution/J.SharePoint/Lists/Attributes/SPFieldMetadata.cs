@@ -38,6 +38,9 @@ namespace J.SharePoint.Lists.Attributes
         public bool Required
         { get; set; }
 
+        public bool ReadOnly
+        { get; set; }
+
         protected string Name
         {
             get

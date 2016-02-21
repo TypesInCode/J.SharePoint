@@ -9,6 +9,7 @@ using J.SharePoint.Lists.Attributes;
 using System.Linq.Expressions;
 using J.SharePoint.Lists.Expressions;
 using System.Reflection;
+using Microsoft.Office.DocumentManagement.DocumentSets;
 
 namespace J.SharePoint.Lists
 {
@@ -77,7 +78,12 @@ namespace J.SharePoint.Lists
 
         public T AddItem()
         {
-            return SPTypedListItem.CreateTypedItem<T>(List.AddItem(), _throwFieldErrors);
+            T item = CreateTypedItem(List.AddItem(), _throwFieldErrors);
+            SPContentTypeMetadata ct = SPContentTypeMetadata.Get(typeof(T));
+            if (ct != null)
+                item.ContentType = ct.Name;
+
+            return item;
         }
 
         public SPTypedListItemCollection<T> GetItems(SPQuery query)
@@ -87,17 +93,17 @@ namespace J.SharePoint.Lists
 
         public T GetItemById(int id)
         {
-            return SPTypedListItem.CreateTypedItem<T>(_list.GetItemById(id), _throwFieldErrors);
+            return CreateTypedItem(_list.GetItemById(id));
         }
 
         public T GetItemByUniqueId(Guid id)
         {
-            return SPTypedListItem.CreateTypedItem<T>(_list.GetItemByUniqueId(id), _throwFieldErrors);
+            return CreateTypedItem(_list.GetItemByUniqueId(id));
         }
 
         public void EnsureList()
         {
-            EnsureContentTypes();
+            EnsureContentType();
             EnsureFields();
             EnsureFieldLinks();
             EnsureEventReceivers();
@@ -108,14 +114,19 @@ namespace J.SharePoint.Lists
             List.Fields.EnsureFields(FieldMetadata);
         }
 
-        public void EnsureContentTypes()
+        public void EnsureContentType()
         {
-            List.ContentTypes.EnsureContentTypes(SPContentTypeMetadata.Get(typeof(T)), List.ParentWeb);
+            List.ContentTypes.EnsureContentType(SPContentTypeMetadata.Get(typeof(T)), List.ParentWeb);
         }
 
         public void EnsureFieldLinks()
         {
             List.ContentTypes.EnsureFieldLinks(FieldMetadata, List.Fields, List.ParentWeb);
+        }
+
+        public static T CreateTypedItem(SPListItem item, bool throwFieldErrors = false)
+        {
+            return SPTypedListItem.CreateTypedItem<T>(item, throwFieldErrors);
         }
     }
 }

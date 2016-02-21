@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Microsoft.SharePoint;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using J.SharePoint;
 using J.SharePoint.Lists;
@@ -8,18 +9,21 @@ using J.SharePoint.Lists.QueryExtensions;
 
 namespace J.SharePoint.Test
 {
-    [SPListMetadata(Title = "Form Submission List")]
+    [SPListMetadata(Title="Form Submission List", ListTemplateType=SPListTemplateType.GenericList, ContentTypesEnabled=true)]
     public class FormSubmissionList : SPTypedList<FormSubmissionItem>
     {
+        public FormSubmissionList(bool throwFieldErrors = false) : base(throwFieldErrors)
+        {}
     }
 
+    [SPContentTypeMetadata(Name="TestItem", ParentContentType="Item")]
     public class FormSubmissionItem : SPTypedListItem
     {
-        [SPFieldTextMetadata(Title = "Submit Value", InternalName = "SubmitValue")]
+        [SPFieldTextMetadata(Title = "Submit Value", InternalName = "SubmitValue", ContentType="TestItem")]
         public string SubmitValue
         { get; set; }
 
-        [SPFieldTextMetadata(Title = "COP ID", InternalName = "COPID")]
+        [SPFieldTextMetadata(Title = "COP ID", InternalName = "COPID", ContentType="TestItem")]
         public string COPID
         { get; set; }
     }
@@ -34,14 +38,21 @@ namespace J.SharePoint.Test
         {
             using( SPCtx ctx = new SPCtx(_siteUrl) )
             {
-                FormSubmissionList list = ctx.Web.GetList<FormSubmissionList>();
-                var items = list.Items.Where(i => 
-                    (i.Modified.QueryLeq("<Today />", true) && i.Title == "Testing Thing") ||
-                    (i.Created.QueryLt(DateTime.Now, true) && i.Title == "Future item?")).GetItems();
-                var item = items[0];
-                items = items.NextPage();
-                item = items[0];
-                int total = items.Count;
+                ctx.Web.ContentTypes.EnsureContentType(SPContentTypeMetadata.Get(typeof(FormSubmissionItem)), ctx.Web);
+                ctx.Web.Fields.EnsureFields(SPFieldMetadata.GetMetadata(typeof(FormSubmissionItem)));
+                ctx.Web.ContentTypes.EnsureFieldLinks(SPFieldMetadata.GetMetadata(typeof(FormSubmissionItem)), ctx.Web.Fields);
+                //FormSubmissionList list = ctx.Web.GetList<FormSubmissionList>(true);
+                FormSubmissionList list = new FormSubmissionList(true);
+                list.LoadList(ctx.Web, true);
+                list.EnsureList();
+
+                /* var item = list.AddItem();
+                Console.WriteLine(item.ContentType);
+                
+                
+                item.SubmitValue = "whatever";
+                item.Update();
+                Console.WriteLine(item.ContentType); */
             }
         }
     }

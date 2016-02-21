@@ -7,7 +7,7 @@ using Microsoft.SharePoint;
 
 namespace J.SharePoint.Lists.Attributes
 {
-    [AttributeUsage(AttributeTargets.Class, Inherited = true, AllowMultiple = true)]
+    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     public class SPContentTypeMetadata : Attribute
     {
         public string ContentTypeId
@@ -25,9 +25,9 @@ namespace J.SharePoint.Lists.Attributes
         public string Description
         { get; set; }
 
-        public static IEnumerable<SPContentTypeMetadata> Get(Type type)
+        public static SPContentTypeMetadata Get(Type type)
         {
-            return type.GetCustomAttributes(typeof(SPContentTypeMetadata), true).Cast<SPContentTypeMetadata>();
+            return type.GetCustomAttributes(typeof(SPContentTypeMetadata), true).Cast<SPContentTypeMetadata>().FirstOrDefault();
         }
 
         public SPContentType GetContentType(SPContentTypeCollection contentTypeCollection)
